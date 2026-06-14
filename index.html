@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Basit Oda</title>
+    <style>
+        body { font-family: sans-serif; text-align: center; background: #f0f2f5; }
+        #oda { border: 2px solid #333; width: 300px; margin: 20px auto; padding: 20px; background: white; border-radius: 15px; }
+        .oyuncu { background: #e1ffc7; margin: 5px; padding: 10px; border-radius: 5px; }
+    </style>
+</head>
+<body>
+
+    <h1>Sesli Oda Taslağı</h1>
+    
+    <div id="oda">
+        <h3>İçeridekiler</h3>
+        <div id="liste">
+            <p>Henüz kimse yok...</p>
+        </div>
+    </div>
+
+    <input type="text" id="isimInput" placeholder="Adını yaz...">
+    <button onclick="katil()">Odaya Gir</button>
+
+    <script>
+        function katil() {
+            let isim = document.getElementById('isimInput').value;
+            if(isim) {
+                let liste = document.getElementById('liste');
+                // Eğer ilk kişi giriyorsa "henüz kimse yok" yazısını sil
+                if(liste.innerHTML.includes("Henüz")) liste.innerHTML = "";
+                
+                // Yeni bir oyuncu kutusu oluştur
+                liste.innerHTML += <div class="oyuncu">🟢 ${isim}</div>;
+                document.getElementById('isimInput').value = ""; // Kutuyu temizle
+            } else {
+                alert("Lütfen bir isim yaz!");
+            }
+        }
+    </script>
+
+</body>
+</html>
