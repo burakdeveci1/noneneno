@@ -1,44 +1,936 @@
 <!DOCTYPE html>
-<html>
+<html lang="tr">
 <head>
     <meta charset="UTF-8">
-    <title>Basit Oda</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Deveciler | Premium Software & UI Design</title>
+    
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&family=Space+Grotesk:wght@500;700&display=swap" rel="stylesheet">
+    
     <style>
-        body { font-family: sans-serif; text-align: center; background: #f0f2f5; }
-        #oda { border: 2px solid #333; width: 300px; margin: 20px auto; padding: 20px; background: white; border-radius: 15px; }
-        .oyuncu { background: #e1ffc7; margin: 5px; padding: 10px; border-radius: 5px; }
+        /* Modern Fütüristik Reset */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+        
+        body, html {
+            width: 100%;
+            height: 100%;
+            background-color: #0b0c10;
+            color: #ecf0f1;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, .nav-logo {
+            font-family: 'Space Grotesk', sans-serif;
+            font-weight: 700;
+        }
+
+        .cyber-card {
+            background: rgba(15, 17, 26, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 16px;
+            padding: 40px;
+            backdrop-filter: blur(10px);
+            position: relative;
+            transition: all 0.4s ease;
+        }
+
+        .cyber-card:hover {
+            border-color: #00ffcc;
+            box-shadow: 0 10px 30px rgba(0, 255, 204, 0.05);
+            transform: translateY(-5px);
+        }
+
+        .cyber-badge {
+            display: inline-block;
+            padding: 6px 16px;
+            border-radius: 30px;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            margin-bottom: 20px;
+        }
+
+        .badge-neon-blue { background: rgba(0, 153, 255, 0.1); color: #0099ff; border: 1px solid #0099ff; }
+        .badge-neon-green { background: rgba(0, 255, 204, 0.1); color: #00ffcc; border: 1px solid #00ffcc; }
+        .badge-neon-pink { background: rgba(255, 74, 74, 0.1); color: #ff4a4a; border: 1px solid #ff4a4a; }
+
+        /* ==================== 1. INTRO & RESİMLİ GİRİŞ EKRANI ==================== */
+        #loader-container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #050608;
+            z-index: 99999;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        #canvas3d {
+            width: 100%;
+            height: 45vh;
+            z-index: 2;
+        }
+
+        .intro-gallery {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .intro-panel-img {
+            position: absolute;
+            width: 220px;
+            height: 140px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background-size: cover;
+            background-position: center;
+            opacity: 0.25;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+
+        .img-pos1 { top: 12%; left: 8%; transform: rotate(-4deg); }
+        .img-pos2 { top: 18%; right: 10%; transform: rotate(5deg); }
+        .img-pos3 { bottom: 18%; left: 12%; transform: rotate(3deg); }
+        .img-pos4 { bottom: 12%; right: 8%; transform: rotate(-6deg); }
+
+        .modern-progress-box {
+            width: 280px;
+            text-align: center;
+            z-index: 3;
+            margin-top: 20px;
+        }
+
+        .modern-bar {
+            width: 100%;
+            height: 4px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .modern-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #00ffcc, #0099ff);
+        }
+
+        .modern-text {
+            font-size: 0.8rem;
+            letter-spacing: 0.2em;
+            color: rgba(255,255,255,0.4);
+            text-transform: uppercase;
+        }
+
+        /* ==================== 2. ANA ARAYÜZ (MODERN NAVBAR) ==================== */
+        #main-site {
+            width: 100%;
+            opacity: 0;
+            visibility: hidden;
+            padding-top: 120px;
+        }
+
+        nav {
+            width: 100%;
+            background: rgba(11, 12, 16, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 25px 50px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            z-index: 999;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .nav-logo {
+            font-size: 1.6rem;
+            letter-spacing: 0.15em;
+            color: #ffffff;
+        }
+
+        .nav-logo span {
+            color: #00ffcc;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.6fr;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        /* Video Kısmını Büyütmek İçin Özel Grid Yapısı */
+        .video-large-grid {
+            display: grid;
+            grid-template-columns: 1.8fr 1.2fr;
+            gap: 40px;
+            margin-bottom: 40px;
+        }
+
+        @media (max-width: 900px) {
+            .main-grid, .video-large-grid { grid-template-columns: 1fr; }
+            nav { padding: 20px; }
+        }
+
+        .profile-section {
+            text-align: center;
+        }
+
+        .avatar-glow {
+            width: 100px;
+            height: 100px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #00ffcc, #0099ff);
+            margin: 0 auto 25px auto;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 2.5rem;
+            color: #0b0c10;
+            box-shadow: 0 0 30px rgba(0, 255, 204, 0.3);
+        }
+
+        .info-list {
+            list-style: none;
+            text-align: left;
+            margin-top: 30px;
+        }
+
+        .info-list li {
+            padding: 14px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+            font-size: 0.85rem;
+            display: flex;
+            justify-content: space-between;
+            color: rgba(255,255,255,0.6);
+        }
+
+        .info-list li span:last-child {
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .modern-skill-track {
+            width: 100%;
+            height: 8px;
+            background: rgba(255,255,255,0.05);
+            border-radius: 4px;
+            margin-top: 8px;
+            margin-bottom: 25px;
+        }
+
+        .modern-skill-bar {
+            height: 100%;
+            border-radius: 4px;
+            background: linear-gradient(90deg, #00ffcc, #0099ff);
+        }
+
+        /* ==================== 3. HESAPLAMA VE FİYAT ÖLÇEKLENDİRME ==================== */
+        .calculator-layout {
+            display: grid;
+            grid-template-columns: 1.6fr 1.4fr;
+            gap: 40px;
+            margin-bottom: 80px;
+        }
+
+        @media (max-width: 850px) {
+            .calculator-layout { grid-template-columns: 1fr; }
+        }
+
+        .premium-slider {
+            -webkit-appearance: none;
+            width: 100%;
+            height: 6px;
+            background: rgba(255,255,255,0.1);
+            border-radius: 10px;
+            outline: none;
+            margin: 20px 0;
+        }
+
+        .premium-slider::-webkit-slider-thumb {
+            -webkit-appearance: none;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #00ffcc;
+            box-shadow: 0 0 10px #00ffcc;
+            cursor: pointer;
+        }
+
+        .custom-check-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px 30px;
+            margin-top: 25px;
+        }
+
+        @media (max-width: 600px) {
+            .custom-check-grid { grid-template-columns: 1fr; }
+        }
+
+        .custom-check-label {
+            display: flex;
+            align-items: flex-start;
+            gap: 15px;
+            cursor: pointer;
+            font-size: 0.9rem;
+        }
+
+        .custom-check-input {
+            appearance: none;
+            width: 20px;
+            height: 20px;
+            border: 1px solid rgba(255,255,255,0.2);
+            border-radius: 6px;
+            cursor: pointer;
+            position: relative;
+            flex-shrink: 0;
+            background: rgba(255,255,255,0.02);
+        }
+
+        .custom-check-input:checked {
+            background: #00ffcc;
+            border-color: #00ffcc;
+        }
+
+        .custom-check-input:checked::after {
+            content: '✓';
+            position: absolute;
+            top: 0px;
+            left: 4px;
+            font-size: 0.8rem;
+            color: #0b0c10;
+            font-weight: bold;
+        }
+
+        .price-display-card {
+            background: linear-gradient(145deg, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0.01) 100%);
+            border: 1px solid rgba(255, 255, 204, 0.15);
+            border-radius: 24px;
+            padding: 50px 30px;
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .price-value {
+            font-size: 3.5rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin: 20px 0;
+            font-family: 'Space Grotesk', sans-serif;
+            background: linear-gradient(90deg, #fff, #00ffcc);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .btn-glow {
+            width: 100%;
+            background: #00ffcc;
+            color: #0b0c10;
+            border: none;
+            padding: 16px;
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            box-shadow: 0 10px 20px rgba(0, 255, 204, 0.15);
+        }
+
+        .btn-glow:hover {
+            box-shadow: 0 15px 30px rgba(0, 255, 204, 0.3);
+            transform: translateY(-2px);
+        }
+
+        /* ==================== 4. İLETİŞİM SAYFASI (EN ALT) ==================== */
+        .footer-contact {
+            text-align: center;
+            padding: 80px 20px;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .footer-phone {
+            font-size: 1.5rem;
+            color: #00ffcc;
+            text-decoration: none;
+            font-weight: 600;
+            display: inline-block;
+            margin-top: 20px;
+            letter-spacing: 0.05em;
+            transition: opacity 0.3s;
+        }
+
+        /* ==================== 5. MODÜLER ONLİNE ASİSTAN PANALİ ==================== */
+        #assistant-trigger {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 65px;
+            height: 65px;
+            border-radius: 50%;
+            background: #00ffcc;
+            color: #0b0c10;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            cursor: pointer;
+            box-shadow: 0 10px 30px rgba(0, 255, 204, 0.4);
+            z-index: 1000;
+            transition: transform 0.3s ease;
+        }
+
+        #assistant-trigger:hover {
+            transform: scale(1.1);
+        }
+
+        #assistant-window {
+            position: fixed;
+            bottom: 110px;
+            right: 30px;
+            width: 360px;
+            height: 500px;
+            background: #0f111a;
+            border: 1px solid rgba(0, 255, 204, 0.2);
+            border-radius: 16px;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            opacity: 0;
+            transform: translateY(20px);
+            pointer-events: none;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        #assistant-window.active {
+            opacity: 1;
+            transform: translateY(0);
+            pointer-events: auto;
+        }
+
+        .asst-header {
+            background: rgba(255,255,255,0.03);
+            padding: 15px 20px;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .asst-body {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .msg {
+            max-width: 80%;
+            padding: 12px 16px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+        .msg.system {
+            background: rgba(255,255,255,0.05);
+            color: #ecf0f1;
+            align-self: flex-start;
+        }
+
+        .msg.user {
+            background: #00ffcc;
+            color: #0b0c10;
+            font-weight: 600;
+            align-self: flex-end;
+        }
+
+        .wa-connect-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #25d366;
+            color: white;
+            text-decoration: none;
+            padding: 10px 14px;
+            border-radius: 8px;
+            margin-top: 8px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            transition: opacity 0.2s;
+        }
+
+        .asst-footer {
+            padding: 15px;
+            background: rgba(0,0,0,0.2);
+            border-top: 1px solid rgba(255,255,255,0.05);
+            display: flex;
+            gap: 10px;
+        }
+
+        .asst-input {
+            flex: 1;
+            background: rgba(255,255,255,0.05);
+            border: 1px solid rgba(255,255,255,0.1);
+            border-radius: 8px;
+            padding: 10px;
+            color: #fff;
+            font-size: 0.85rem;
+            outline: none;
+        }
+
+        .asst-input:focus {
+            border-color: #00ffcc;
+        }
+
+        .asst-send {
+            background: #00ffcc;
+            border: none;
+            width: 40px;
+            height: 40px;
+            border-radius: 8px;
+            color: #0b0c10;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
     </style>
 </head>
 <body>
 
-    <h1>Sesli Oda Taslağı</h1>
-    
-    <div id="oda">
-        <h3>İçeridekiler</h3>
-        <div id="liste">
-            <p>Henüz kimse yok...</p>
+    <div id="loader-container">
+        <div class="intro-gallery">
+            <div class="intro-panel-img img-pos1" style="background-image: url('https://picsum.photos/400/300?tech,cyber');"></div>
+            <div class="intro-panel-img img-pos2" style="background-image: url('https://picsum.photos/400/300?code,matrix');"></div>
+            <div class="intro-panel-img img-pos3" style="background-image: url('https://picsum.photos/400/300?hacker,terminal');"></div>
+            <div class="intro-panel-img img-pos4" style="background-image: url('https://picsum.photos/400/300?digital,neon');"></div>
+        </div>
+        <div id="canvas3d"></div> 
+        <div class="modern-progress-box">
+            <div class="modern-bar"><div class="modern-fill" id="fill"></div></div>
+            <div class="modern-text" id="percent">YÜKLENİYOR 0%</div>
         </div>
     </div>
 
-    <input type="text" id="isimInput" placeholder="Adını yaz...">
-    <button onclick="katil()">Odaya Gir</button>
+    <div id="main-site">
+        <nav>
+            <div class="nav-logo">DEVECİ<span>LER</span></div>
+        </nav>
+
+        <div class="container">
+            
+            <div class="main-grid">
+                <div class="cyber-card profile-section">
+                    <span class="cyber-badge badge-neon-pink">SEC-LEVEL // 01</span>
+                    <div class="avatar-glow"><i class="fa-solid fa-layer-group"></i></div>
+                    <h2 style="font-size: 1.8rem; margin-bottom: 5px;">BURAK DEVECİ</h2>
+                    <p style="font-size: 0.8rem; color: #00ffcc; letter-spacing: 0.1em; text-transform:uppercase;">Hybrid Designer & Coder</p>
+                    <ul class="info-list">
+                        <li><span>LOKASYON:</span> <span>TÜRKİYE / GLOBAL</span></li>
+                        <li><span>DENEYİM:</span> <span>20 YIL (SINCE 2006)</span></li>
+                        <li><span>ODAK NOKTASI:</span> <span>PREMIUM SOFTWARE / UI MATH</span></li>
+                        <li><span>CO-SIGN:</span> <span style="color:#ff4a4a;">DEVECİLER</span></li>
+                    </ul>
+                </div>
+
+                <div class="cyber-card">
+                    <h2 style="font-size: 2rem; margin-bottom: 20px; background: linear-gradient(90deg, #fff, rgba(255,255,255,0.6)); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">İKİ AYRI DÜNYANIN HARMANI</h2>
+                    <p style="margin-bottom: 20px;">Tasarımı ve derinlemesine kod mimarisini iki farklı kutup olarak görmüyoruz. Deveciler mühendislik ekolü, karmaşık matematiksel algoritmaları ve üst düzey siber güvenlik katmanlarını sanatsal, akıcı bir kullanıcı deneyimine dönüştürmek üzerine kuruludur.</p>
+                    <div class="modern-skill-track"><div class="modern-skill-bar" style="width: 99%;"></div></div>
+                    <div class="modern-skill-track"><div class="modern-skill-bar" style="width: 95%; background: linear-gradient(90deg, #ff4a4a, #ff9900);"></div></div>
+                </div>
+            </div>
+
+            <div class="video-large-grid">
+                <div class="cyber-card" style="padding: 25px;">
+                    <span class="cyber-badge badge-neon-blue">PROJECT // VISUAL STREAM</span>
+                    <div style="position: relative; border-radius: 12px; overflow: hidden; border: 1px solid rgba(0, 255, 204, 0.2); background: #000; aspect-ratio: 16/9;">
+                        <video id="projectVideo" width="100%" height="100%" style="display: block; object-fit: cover;" controls autoplay loop muted playsinline>
+                            <source src="videoplayback.mp4" type="video/mp4">
+                            Tarayıcınız video oynatmayı desteklemiyor.
+                        </video>
+                    </div>
+                    <h3 style="margin-top: 15px; font-size: 1.2rem; color: #fff;">SİBER ALTYAPI DEMOSU</h3>
+                    <p style="font-size: 0.85rem; margin-top: 5px; color: rgba(255,255,255,0.6);">Geliştirilen dinamik sistemlerin mimari akışı, siber veri panelleri ve eşzamanlı arayüz simülasyonu geniş ekran deneyimiyle optimize edilmiştir.</p>
+                </div>
+
+                <div class="cyber-card" style="display: flex; flex-direction: column; justify-content: space-between;">
+                    <div>
+                        <span class="cyber-badge badge-neon-green">AUDIO // CYBER BEATS</span>
+                        <h3 style="font-size: 1.4rem; margin-bottom: 10px;">PROJE AMBİYANSI</h3>
+                        <p style="margin-bottom: 20px;">Süreçlere eşlik eden, odaklanmayı artıran fütüristik arka plan operasyon ritmi.</p>
+                    </div>
+                    
+                    <div style="background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 20px; display: flex; align-items: center; gap: 20px;">
+                        <button id="audioPlayBtn" onclick="toggleAudio()" style="width: 50px; height: 50px; border-radius: 50%; background: #00ffcc; border: none; color: #0b0c10; font-size: 1.2rem; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: all 0.3s; box-shadow: 0 0 15px rgba(0,255,204,0.3); flex-shrink:0;">
+                            <i class="fa-solid fa-play" id="audioIcon"></i>
+                        </button>
+                        <div style="flex: 1;">
+                            <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: rgba(255,255,255,0.4); margin-bottom: 5px;">
+                                <span id="trackName">çoşkun operasyın müzigi.mp3</span>
+                                <span id="audioTime">00:00</span>
+                            </div>
+                            <div style="width: 100%; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; cursor: pointer; position: relative;" onclick="seekAudio(event)" id="audioProgressTrack">
+                                <div id="audioProgressBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, #00ffcc, #0099ff); border-radius: 2px;"></div>
+                            </div>
+                        </div>
+                        
+                        <audio id="cyberAudio" src="çoşkun operasyın müzigi.mp3" preload="auto" ontimeupdate="updateAudioProgress()"></audio>
+                    </div>
+                </div>
+            </div>
+
+            <div class="cyber-card calculator-layout">
+                <div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                        <span style="font-weight:600; letter-spacing: 0.05em;">PROJE ÖLÇEĞİ VE HACMİ</span>
+                        <span class="cyber-badge badge-neon-green" id="pageLabel" style="margin:0;">1 SAYFA (LANDING)</span>
+                    </div>
+                    <input type="range" min="1" max="5" value="1" class="premium-slider" id="scaleSlider">
+                    
+                    <div class="custom-check-grid">
+                        <label class="custom-check-label">
+                            <input type="checkbox" class="custom-check-input" id="checkPanel" value="15000" checked>
+                            <span>Dinamik İçerik Yönetim Paneli (+15.000 TL)</span>
+                        </label>
+                        <label class="custom-check-label">
+                            <input type="checkbox" class="custom-check-input" id="checkLang" value="10000">
+                            <span>Çoklu Dil Altyapısı (+10.000 TL)</span>
+                        </label>
+                        <label class="custom-check-label">
+                            <input type="checkbox" class="custom-check-input" id="checkSEO" value="7500">
+                            <span>Gelişmiş SEO & Performans Paketi (+7.500 TL)</span>
+                        </label>
+                        <label class="custom-check-label">
+                            <input type="checkbox" class="custom-check-input" id="checkSecure" value="12500">
+                            <span>Ekstra Siber Güvenlik Duvarı (+12.500 TL)</span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="price-display-card">
+                    <span class="cyber-badge badge-neon-blue">TAHMİNİ PROJE BÜTÇESİ</span>
+                    <div class="price-value" id="priceText">39.500 TL</div>
+                    <button class="btn-glow" onclick="window.open('https://wa.me/905386523367', '_blank')">İletişime Başla</button>
+                </div>
+            </div>
+
+            <div class="footer-contact">
+                <span class="cyber-badge badge-neon-pink">DİREKT BAĞLANTI HATTI</span>
+                <h2 style="font-size: 2.2rem;">BİZİMLE PROJENİZİ BAŞLATIN</h2>
+                <br>
+                <a href="tel:+905386523367" class="footer-phone"><i class="fa-solid fa-headset"></i> +90 538 652 33 67</a>
+            </div>
+        </div>
+    </div>
+
+    <div id="assistant-trigger" onclick="toggleAssistant()">
+        <i class="fa-solid fa-comment-dots"></i>
+    </div>
+
+    <div id="assistant-window">
+        <div class="asst-header">
+            <span style="font-weight: bold; font-size: 0.9rem; color: #00ffcc;"><i class="fa-solid fa-robot"></i> DEVECİLER ASİSTAN</span>
+            <i class="fa-solid fa-xmark" style="cursor:pointer;" onclick="toggleAssistant()"></i>
+        </div>
+        <div class="asst-body" id="chatBody">
+            <div class="msg system">
+                Merhaba! Ben Deveciler akıllı yönlendirme asistanı. Gelişmiş proje hacmi modüllerimiz ve fiyatlar hakkında sormak istediğiniz her şeyi yazabilirsiniz.
+            </div>
+        </div>
+        <div class="asst-footer">
+            <input type="text" class="asst-input" id="chatInput" placeholder="Mesajınızı yazın..." onkeypress="handleKeyPress(event)">
+            <button class="asst-send" onclick="sendAssistantMessage()"><i class="fa-solid fa-paper-plane"></i></button>
+        </div>
+    </div>
 
     <script>
-        function katil() {
-            let isim = document.getElementById('isimInput').value;
-            if(isim) {
-                let liste = document.getElementById('liste');
-                // Eğer ilk kişi giriyorsa "henüz kimse yok" yazısını sil
-                if(liste.innerHTML.includes("Henüz")) liste.innerHTML = "";
-                
-                // Yeni bir oyuncu kutusu oluştur
-                liste.innerHTML += <div class="oyuncu">🟢 ${isim}</div>;
-                document.getElementById('isimInput').value = ""; // Kutuyu temizle
-            } else {
-                alert("Lütfen bir isim yaz!");
+        // --- ARKA PLANDA OTOMATİK MÜZİK OYNATMA SİSTEMİ ---
+        // Modern tarayıcılar ilk tıklama gelene kadar sesi engeller. Bu yüzden yükleme ekranı
+        // bittiği an veya kullanıcının siteye ilk dokunuşunda ses tetiklenir.
+        function startCyberAudio() {
+            const audio = document.getElementById('cyberAudio');
+            if (audio && audio.paused) {
+                audio.play().then(() => {
+                    if(document.getElementById('audioIcon')) document.getElementById('audioIcon').className = 'fa-solid fa-pause';
+                    if(document.getElementById('audioPlayBtn')) document.getElementById('audioPlayBtn').style.boxShadow = '0 0 25px rgba(0,255,204,0.6)';
+                }).catch(err => {
+                    console.log("Tarayıcı politikası gereği ilk etkileşim bekleniyor.");
+                });
             }
         }
-    </script>
 
+        // Kullanıcı sayfada herhangi bir yere tıkladığında müzik koruması aşılır
+        document.addEventListener('click', startCyberAudio, { once: true });
+        document.addEventListener('touchstart', startCyberAudio, { once: true });
+
+        // --- SİYAH EKRAN ENGELLEME SİSTEMİ (FAILSAFE) ---
+        setTimeout(() => {
+            const loader = document.getElementById('loader-container');
+            const mainSite = document.getElementById('main-site');
+            if (loader && loader.style.display !== 'none') {
+                loader.style.opacity = 0;
+                setTimeout(() => {
+                    loader.style.display = 'none';
+                    mainSite.style.visibility = "visible";
+                    mainSite.style.opacity = 1;
+                    startCyberAudio();
+                }, 200);
+            }
+        }, 3500);
+
+        // --- YÜKLEME EKRANI ANIMASYONU ---
+        let count = 0;
+        const fill = document.getElementById('fill');
+        const percent = document.getElementById('percent');
+        const timer = setInterval(() => {
+            if (count >= 100) {
+                clearInterval(timer);
+                if(typeof gsap !== 'undefined') {
+                    gsap.to("#loader-container", { opacity: 0, duration: 0.5, onComplete: () => {
+                        document.getElementById('loader-container').style.display = 'none';
+                        startCyberAudio(); // Intro bitince sesi başlatmayı dene
+                    }});
+                    gsap.to("#main-site", { visibility: "visible", opacity: 1, duration: 0.6 });
+                } else {
+                    document.getElementById('loader-container').style.display = 'none';
+                    const main = document.getElementById('main-site');
+                    main.style.visibility = "visible";
+                    main.style.opacity = 1;
+                    startCyberAudio();
+                }
+            } else {
+                count += Math.floor(Math.random() * 5) + 5;
+                if(count > 100) count = 100;
+                if(fill) fill.style.width = count + '%';
+                if(percent) percent.innerText = 'YÜKLENİYOR ' + count + '%';
+            }
+        }, 40);
+
+        // --- GİRİŞTEKİ AKICI 3D KAFES LOGO (THREE.JS) ---
+        const canvasDiv = document.getElementById('canvas3d');
+        if (canvasDiv && typeof THREE !== 'undefined') {
+            try {
+                const scene = new THREE.Scene();
+                const camera = new THREE.PerspectiveCamera(70, canvasDiv.clientWidth / canvasDiv.clientHeight, 0.1, 1000);
+                camera.position.z = 3.5;
+                const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true });
+                renderer.setSize(canvasDiv.clientWidth, canvasDiv.clientHeight);
+                canvasDiv.appendChild(renderer.domElement);
+
+                const group = new THREE.Group();
+                const wireMaterial = new THREE.MeshBasicMaterial({ color: 0x00ffcc, wireframe: true });
+                const coreMesh = new THREE.Mesh(new THREE.IcosahedronGeometry(0.9, 1), wireMaterial);
+                group.add(coreMesh);
+                scene.add(group);
+
+                window.addEventListener('resize', () => {
+                    if(canvasDiv.clientWidth && canvasDiv.clientHeight) {
+                        camera.aspect = canvasDiv.clientWidth / canvasDiv.clientHeight;
+                        camera.updateProjectionMatrix();
+                        renderer.setSize(canvasDiv.clientWidth, canvasDiv.clientHeight);
+                    }
+                });
+
+                function renderLoop() {
+                    requestAnimationFrame(renderLoop);
+                    group.rotation.y += 0.005;
+                    renderer.render(scene, camera);
+                }
+                renderLoop();
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        // --- GELİŞTİRİLMİŞ PROJE HACMİ HESAPLAMA ---
+        const scaleSlider = document.getElementById('scaleSlider');
+        const pageLabel = document.getElementById('pageLabel');
+        const priceText = document.getElementById('priceText');
+        
+        // Elementler
+        const checkPanel = document.getElementById('checkPanel');
+        const checkLang = document.getElementById('checkLang');
+        const checkSEO = document.getElementById('checkSEO');
+        const checkSecure = document.getElementById('checkSecure');
+
+        function dynamicPriceCalc() {
+            if(!scaleSlider || !priceText || !pageLabel) return;
+            
+            let coreCost = 24500;
+            let val = parseInt(scaleSlider.value);
+            
+            // 5 Kademeli Gelişmiş Proje Hacmi Ölçeği
+            if(val === 1) {
+                coreCost = 24500;
+                pageLabel.innerText = "1 SAYFA (LANDING PAGE)";
+            } else if(val === 2) {
+                coreCost = 38000;
+                pageLabel.innerText = "KURUMSAL (5-10 SAYFA)";
+            } else if(val === 3) {
+                coreCost = 55000;
+                pageLabel.innerText = "GELİŞMİŞ PORTAL (20 SAYFA)";
+            } else if(val === 4) {
+                coreCost = 85000;
+                pageLabel.innerText = "E-TİCARET / PLATFORM ALTYAPISI";
+            } else if(val === 5) {
+                coreCost = 130000;
+                pageLabel.innerText = "ÖZEL SAKLAMA / KURUMSAL ERP";
+            }
+            
+            // Ekstra Donanımlar
+            let addons = 0;
+            if(checkPanel && checkPanel.checked) addons += parseInt(checkPanel.value);
+            if(checkLang && checkLang.checked) addons += parseInt(checkLang.value);
+            if(checkSEO && checkSEO.checked) addons += parseInt(checkSEO.value);
+            if(checkSecure && checkSecure.checked) addons += parseInt(checkSecure.value);
+            
+            priceText.innerText = (coreCost + addons).toLocaleString('tr-TR') + " TL";
+        }
+
+        if(scaleSlider) scaleSlider.addEventListener('input', dynamicPriceCalc);
+        [checkPanel, checkLang, checkSEO, checkSecure].forEach(box => {
+            if(box) box.addEventListener('change', dynamicPriceCalc);
+        });
+
+        dynamicPriceCalc();
+
+        // --- SES OYNATICI (AUDIO PLAYER) MANTIĞI ---
+        const cyberAudio = document.getElementById('cyberAudio');
+        const audioPlayBtn = document.getElementById('audioPlayBtn');
+        const audioIcon = document.getElementById('audioIcon');
+        const audioProgressBar = document.getElementById('audioProgressBar');
+        const audioProgressTrack = document.getElementById('audioProgressTrack');
+        const audioTime = document.getElementById('audioTime');
+
+        function toggleAudio() {
+            if(!cyberAudio) return;
+            if (cyberAudio.paused) {
+                cyberAudio.play().catch(err => console.log(err));
+                if(audioIcon) audioIcon.className = 'fa-solid fa-pause';
+                if(audioPlayBtn) audioPlayBtn.style.boxShadow = '0 0 25px rgba(0,255,204,0.6)';
+            } else {
+                cyberAudio.pause();
+                if(audioIcon) audioIcon.className = 'fa-solid fa-play';
+                if(audioPlayBtn) audioPlayBtn.style.boxShadow = '0 0 15px rgba(0,255,204,0.3)';
+            }
+        }
+
+        function updateAudioProgress() {
+            if(cyberAudio && cyberAudio.duration) {
+                const percent = (cyberAudio.currentTime / cyberAudio.duration) * 100;
+                if(audioProgressBar) audioProgressBar.style.width = percent + '%';
+                
+                let mins = Math.floor(cyberAudio.currentTime / 60);
+                let secs = Math.floor(cyberAudio.currentTime % 60);
+                if (secs < 10) secs = '0' + secs;
+                if (mins < 10) mins = '0' + mins;
+                if(audioTime) audioTime.innerText = mins + ':' + secs;
+            }
+        }
+
+        function seekAudio(e) {
+            if(!cyberAudio || !audioProgressTrack) return;
+            const rect = audioProgressTrack.getBoundingClientRect();
+            const clickX = e.clientX - rect.left;
+            const width = rect.width;
+            if(cyberAudio.duration) {
+                cyberAudio.currentTime = (clickX / width) * cyberAudio.duration;
+            }
+        }
+
+        // ==================== ONLINE ASISTAN MANTIĞI ====================
+        function toggleAssistant() {
+            const win = document.getElementById('assistant-window');
+            if(win) win.classList.toggle('active');
+        }
+
+        function handleKeyPress(e) {
+            if (e.key === 'Enter') sendAssistantMessage();
+        }
+
+        function sendAssistantMessage() {
+            const input = document.getElementById('chatInput');
+            if(!input) return;
+            const msgText = input.value.trim();
+            if (!msgText) return;
+
+            const chatBody = document.getElementById('chatBody');
+            if(!chatBody) return;
+
+            const userDiv = document.createElement('div');
+            userDiv.className = 'msg user';
+            userDiv.innerText = msgText;
+            chatBody.appendChild(userDiv);
+            
+            input.value = '';
+            chatBody.scrollTop = chatBody.scrollHeight;
+
+            setTimeout(() => {
+                const sysDiv = document.createElement('div');
+                sysDiv.className = 'msg system';
+                
+                let reply = "";
+                let query = msgText.toLowerCase();
+
+                if (query.includes("fiyat") || query.includes("ucret") || query.includes("maliyet") || query.includes("kaç para")) {
+                    reply = "Projelerimizin bütçelendirmesi yeni eklediğimiz 5 aşamalı hacim modülüne ve güvenlik/SEO donanımlarına göre hesaplanıyor. Detaylı maliyet analizi için sizi siber hattımıza aktarıyorum:";
+                } else if (query.includes("merhaba") || query.includes("selam") || query.includes("mrb")) {
+                    reply = "Merhaba! Yenilenen Deveciler Premium Software sistemine hoş geldiniz. Genişletilmiş hacim modüllerimiz hakkında bilgi almak ister misiniz?";
+                } else {
+                    reply = "Talebiniz kaydedildi. Aradığınız konuda size en net bilgiyi doğrudan WhatsApp siber hattımız üzerinden iletebilirim:";
+                }
+
+                sysDiv.innerHTML = `<div>${reply}</div>`;
+
+                if (!query.includes("merhaba") && !query.includes("selam")) {
+                    const waBtn = document.createElement('a');
+                    waBtn.href = `https://wa.me/905386523367?text=${encodeURIComponent('Merhaba Burak Bey, web sitemizdeki asistan üzerinden yazıyorum: ' + msgText)}`;
+                    waBtn.target = "_blank";
+                    waBtn.className = "wa-connect-btn";
+                    waBtn.innerHTML = `<i class="fa-brands fa-whatsapp"></i> Siber Bağlantı Kur`;
+                    sysDiv.appendChild(waBtn);
+                }
+
+                chatBody.appendChild(sysDiv);
+                chatBody.scrollTop = chatBody.scrollHeight;
+            }, 800);
+        }
+    </script>
 </body>
 </html>
